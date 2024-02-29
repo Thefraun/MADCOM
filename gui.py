@@ -1,5 +1,7 @@
 from tkinter import *
 
+#TODO: Add threading to return results in stream, determine whether to assimilate ai.py or keep as seperate file
+
 root = Tk()
 root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
 root.configure(background='black')

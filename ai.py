@@ -1,3 +1,7 @@
 import ollama
-for chunk in ollama.generate(model = 'codellama:13b-instruct', prompt = 'Why is the sky blue?', stream = True):
-  print(chunk['response'], end='', flush=True)
+#TODO: Add system prompt, add threading to deliver responses as stream
+def getResponse(prompt):
+  response = ''
+  for chunk in ollama.generate(model = 'codellama:13b-instruct', prompt = prompt, stream = True):
+    response += chunk['response']
+  return response
