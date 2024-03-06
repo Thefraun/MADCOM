@@ -1,7 +1,9 @@
 from tkinter import *
 from tkinter.font import Font
 from tkinter.ttk import Separator
+from tkinter import filedialog as fd
 from PIL import Image, ImageTk
+from vision import read_image
 
 import ollama
 import threading
@@ -18,28 +20,42 @@ Parameters:
 
 Return type: None
 """
-def get_response(prompt, queue):
-    for chunk in ollama.generate (
-        model = 'codellama:13b-instruct', prompt=prompt, stream=True,
-        system = 'You are a computer science teacher. If asked about non-computer science related questions, you simply politely decline to answer.'
-        ):
-        queue.put(chunk['response'])
+def get_response(prompt_queue, queue):
+    running = True
+    while running:
+        try:
+            for chunk in ollama.generate (
+                model = 'codellama:13b-instruct', prompt=prompt_queue.get(), stream=True,
+                system = 'You are a computer science teacher.'
+                ):
+                if(running):
+                    response_queue.put(chunk['response'])
+                else:
+                    break
+            running = False
+        except queue.Empty:
+            pass
 
 """
 Check the queue for incoming messages and display them in the feedback area.
 """
 def check_queue():
-    if not queue.empty():
-        text = queue.get()
+    if not response_queue.empty():
+        text = response_queue.get()
         feedback.configure(state='normal')
         feedback.insert('end', text)
         feedback.configure(state='disabled')
     root.after(100, check_queue)
 
-# Create the thread and the queue, then begin the thread
+def upload_file(thread):
+    path = fd.askopenfilename(type=('*.jpg', '*.png', '*.jpeg'))
+    prompt_queue.put(read_image(path))
+    
+# Create the thread and the queue
+response_queue = queue.Queue()
+prompt_queue = queue.Queue()
 running = True
-queue = queue.Queue()
-thread = threading.Thread(target=get_response, args=("Hello", queue,))
+thread = threading.Thread(target=get_response, args=(prompt_queue, queue,))
 thread.start()
 
 #create gui
@@ -84,11 +100,11 @@ advice.grid(row=0, column=1, sticky="we", padx=35, pady=(20,0))
 
 #row two, insert upload image button and spot for ai feedback
 #load image:
-image = Image.open('duck.png')
+image = Image.open('Images\duck.png')
 image = ImageTk.PhotoImage(image)
 
 #button with loaded image:
-uploadImage = Button(mainframe, image=image, font=('Helvetica', 18))
+uploadImage = Button(mainframe, image=image, command=lambda: upload_file(thread = thread), font=('Helvetica', 18))
 uploadImage.grid(row=1, column=0, sticky="we", ipady=.23*root.winfo_screenheight(), padx=30, pady=(5,20)) 
 
 #Text for ai feedback:
@@ -105,6 +121,7 @@ root.after(100, check_queue())
 #run GUI
 root.mainloop()
 
+running = False
 thread.join()
 
 # note for nate, will delete eventually:

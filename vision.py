@@ -45,6 +45,6 @@ def read_image(img_file_path):
     text = ''
     if read_result.status == OperationStatusCodes.succeeded:
         for text_result in read_result.analyze_result.read_results:
-            for line in text_result.line:
-                text+='\n' + line
+            for line in text_result.lines:
+                text+='\n' + line.text
     return text
