@@ -9,6 +9,15 @@ from PIL import Image
 import sys
 import time
 
+"""
+Reads an image from the specified file path and returns the detected text.
+
+Parameters:
+    img_file_path (str): The path to the image file.
+
+Returns:
+    str: The detected text from the image, line by line.
+"""
 def read_image(img_file_path):
     # Set up the client
     subscription_key = os.environ["VISION_KEY"]

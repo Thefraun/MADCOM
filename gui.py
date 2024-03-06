@@ -5,26 +5,26 @@ import queue
 
 #TODO: Pretty up the code
 
-"""
-Function to get response using a prompt and queue for storing the response.
-
-Parameters:
-- prompt: the prompt to generate the response
-- queue: the queue to store the response
-
-Return type: None
-"""
 def get_response(prompt, queue):
+    """
+    Function to get response using a prompt and queue for storing the response.
+
+    Parameters:
+    - prompt: the prompt to generate the response
+    - queue: the queue to store each chunk of the response
+
+    Return type: None
+    """
     for chunk in ollama.generate(
         model = 'codellama:13b-instruct', prompt=prompt, stream=True,
         system = 'You are a computer science teacher. If asked about non-computer science related questions, you simply politely decline to answer.'
         ):
         queue.put(chunk['response'])
 
-"""
-Check the queue for incoming messages and display them in the feedback area.
-"""
 def check_queue():
+    """
+    Check the queue for incoming messages and display them in the feedback area.
+    """
     if not queue.empty():
         text = queue.get()
         feedback.configure(state='normal')
@@ -35,7 +35,7 @@ def check_queue():
 # Create the thread and the queue, then begin the thread
 running = True
 queue = queue.Queue()
-thread = threading.Thread(target=get_response, args=("Hello", queue,))
+thread = threading.Thread(target=get_response, args=("DO NOT PRINT CODE", queue,))
 thread.start()
 
 root = Tk()
@@ -65,6 +65,8 @@ feedback = Text(mainframe, bg='white', state='disabled')
 feedback.grid(row=1, column=1, sticky="we")
 
 mainframe.pack(fill="x")
+
+root.attributes('-fullscreen', True)
 
 root.after(100, check_queue())
 
