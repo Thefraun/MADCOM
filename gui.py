@@ -53,11 +53,28 @@ def upload_file(thread):
     prompt_queue.put(read_image(path))
 
 
-# not sure how to document(?) this 
+# not sure how to document(?) these 
 def reset():
     feedback.delete('1.0', END)
-    
-    
+
+def switch():
+    if modeButton.cget('text') == "Light":
+         root.config(background='black')
+         topframe.config(background='black')
+         heading.config(background='black')
+         mainframe.config(background='black')
+         switchSpot.config(background='black')
+         advice.config(background='black')
+         modeButton.configure(text="Dark")
+    else:
+         root.config(background='grey')
+         topframe.config(background='grey')
+         heading.config(background='grey')
+         mainframe.config(background='grey')
+         switchSpot.config(background='grey')
+         advice.config(background='grey')
+         modeButton.configure(text="Light")
+   
 # Create the thread and the queue
 response_queue = queue.Queue()
 prompt_queue = queue.Queue()
@@ -70,6 +87,7 @@ root = Tk()
 root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
 root.title("")
 
+
 #create font
 font = Font(family='Helvetica',size=36,weight='bold')
 
@@ -80,9 +98,12 @@ topframe = Frame(root)
 topframe.columnconfigure(0, weight=1)
 topframe.columnconfigure(1, weight=1)
 
-#row zero, insert logo and heading
-heading = Label(topframe, text='Script Sage', font=font, anchor='w', pady=15 )
-heading.grid(row=0, column=1, sticky='we')
+#row zero, insert logo, heading, button to change background theme
+heading = Label(topframe, text='Script Sage',  font=font, pady=15 )
+heading.grid(row=0, column=0, padx=(525,0))
+
+modeButton = Button(topframe, text='Light',fg='white',  bg='blue', highlightbackground='blue', activebackground='blue', command=switch)
+modeButton.grid(row=0, column=1, padx=(300,0))
 
 topframe.pack(fill='x')
 
@@ -98,8 +119,8 @@ mainframe.pack(fill='x')
 
 #row one, insert switch and space ---- this still needs to be worked on a lot
 #switch:
-switch = Label(mainframe, text='Switch between code & image here', font=('Helvetica', 18))
-switch.grid(row=0, column=0, sticky='we', pady=(20,0))
+switchSpot = Label(mainframe, text='Switch between code & image here', font=('Helvetica', 18))
+switchSpot.grid(row=0, column=0, sticky='we', pady=(20,0))
 
 #space:
 advice = Label(mainframe, text='Advice from The Sage:', font=('Helvetica', 18))
@@ -113,16 +134,17 @@ image = ImageTk.PhotoImage(image)
 
 #button with loaded image:
 uploadImage = Button(mainframe, image=image, command=lambda: upload_file(thread = thread), font=('Helvetica', 18))
-uploadImage.grid(row=1, column=0, ipadx=.1*root.winfo_screenwidth(), ipady=.18*root.winfo_screenheight(), padx=30, pady=(5,0))
+uploadImage.grid(row=1, column=0, ipadx=.1*root.winfo_screenwidth(), ipady=.18*root.winfo_screenheight(), padx=30, pady=(8,0))
 #Text for ai feedback:
 
 feedbackFont = Font(family='Helvetica',size=24)
 
-feedback = Text(mainframe, bg='lightgreen', state='disabled', font=feedbackFont, width=int(.4*root.winfo_screenwidth()/24), height = 10)
-feedback.grid(row=1, column=1, ipadx=.08*root.winfo_screenwidth(),  ipady=.135*root.winfo_screenheight(), padx=30, pady=(5,0))
+feedback = Text(mainframe, bg='lightgreen', state='disabled', font=feedbackFont, width=int(.4*root.winfo_screenwidth()/24), height = 10, wrap=WORD)
+feedback.grid(row=1, column=1, ipadx=.08*root.winfo_screenwidth(),  ipady=.135*root.winfo_screenheight(), padx=30, pady=(8,0))
+
 #add button to reset image and feedback
-reset = Button(mainframe, text='Reset', fg='white', bg='blue', highlightbackground='blue', activebackground='blue', command=reset)
-reset.grid(row=2, column=0, padx=(400,0), pady=(0,20))
+reset = Button(mainframe, text='Reset', fg='white', bg='blue', highlightbackground='blue', activebackground='blue', command=reset, font=('Arial', 16))
+reset.grid(row=2, column=0, padx=(400,0), pady=(0,20), ipady=10)
 
 #add a line separator
 sep1 = Separator(root, orient='horizontal')
