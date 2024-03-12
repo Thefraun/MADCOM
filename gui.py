@@ -112,7 +112,7 @@ style.theme_create( "lightMode", settings ={
         "TNotebook.Tab": {
             "configure": {"padding": [30, 10], "borderwidth":[2], "foreground": black},
             "map":       {"background": [("selected", defaultLight), ('!active', defaultLight)],
-                          "expand": [("selected", [0,0,0,0])]}}})
+                          "expand": [("selected", [5,5,5,5])]}}})
 
 #use light mode style
 style.theme_use("lightMode")
@@ -124,7 +124,7 @@ style.theme_create( "darkMode", settings ={
          "TNotebook.Tab": {
             "configure": {"padding": [30, 10], "borderwidth":[2], "foreground": white},
             "map":       {"background": [("selected", defaultDark), ('!active', defaultDark), ('active', grey)],
-                          "expand": [("selected", [1, 1, 1, 1])]}}})
+                          "expand": [("selected", [5, 5, 5, 5])]}}})
 
 #make GUI full screen
 root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
