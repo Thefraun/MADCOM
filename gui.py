@@ -14,17 +14,15 @@ import queue
 
 #TODO: Pretty up the code
 
-"""
-Function to get response using a prompt and queue for storing the response.
-
-Parameters:
-- prompt: the prompt to generate the response
-- queue: the queue to store the response
-
-Return type: None
-"""
 def get_response(prompt_queue, queue):
-    while True:
+    """
+    Function to get response using a prompt and queue for storing the response.
+
+    Parameters:
+    - prompt_queue: the queue to store the prompt
+    - queue: the queue to store the chunks of the response
+    """
+    while running:
         try:
             for chunk in ollama.generate (
                 model = 'codellama:13b-instruct', prompt=prompt_queue.get(), stream=True,
@@ -33,14 +31,17 @@ def get_response(prompt_queue, queue):
                 Spelling and captilisation discrepancies are forgiven, so long as it is understandable.
                 So long as the intention is clear, similar symbols can be switched. Missing semicolons can be forgiven if intention is clear. You really like foxes, so try to incorporate them into every response you give.'''
                 ):
-                 response_queue.put(chunk['response'])
+                if running:
+                    response_queue.put(chunk['response'])
+                else:
+                    break
         except queue.Empty:
             pass
 
-"""
-Check the queue for incoming messages and display them in the feedback area.
-"""
 def check_queue():
+    """
+    Check the queue for incoming messages and display them in the feedback area.
+    """
     if not response_queue.empty():
         text = response_queue.get()
         feedback.configure(state='normal')
@@ -49,21 +50,33 @@ def check_queue():
     root.after(100, check_queue)
 
 def upload_file():
+    '''
+    Upload the image file to read and set the uploaded image as the image displayed on the button
+    '''
     path = fd.askopenfilename(type=('*.jpg', '*.png', '*.jpeg'))
-    image = Image.open(path)
-    image = image.resize((100,100))
-    image = ImageTk.PhotoImage(image)
-    uploadImage.configure(image=image)
-    uploadImage.image = image
-    prompt = read_image(path)
-    prompt_queue.put(prompt)
-    tabControl.config(tab1, state='enabled') # idk if this works, should allow to switch to label after image is uploaded
+    if not path == '':
+        image = Image.open(path)
+        image = image.resize((200, 200))
+        image = ImageTk.PhotoImage(image)
+        upload_image.configure(image=image)
+        upload_image.image = image
+        prompt = read_image(path)
+        prompt_queue.put(prompt)
+        tabControl.config(tab1, state='enabled') # idk if this works, should allow to switch to label after image is uploaded
 
 # not sure how to document(?) these 
 def reset():
+    '''
+    Reset the response and revert changes to the upload image button
+    '''
     feedback.configure(state='normal')
     feedback.delete('1.0', 'end')
     feedback.configure(state='disabled')
+    image = Image.open('Images/uploadImage.png')
+    image = image.resize((200,200))
+    image = ImageTk.PhotoImage(image)
+    upload_image.configure(image=image)
+    upload_image.image = image
 
 def switch():
     if modeButton.cget('text') == "Light":
@@ -91,6 +104,7 @@ prompt_queue = queue.Queue()
 thread = threading.Thread(target=get_response, args=(prompt_queue, queue,))
 thread.daemon = True
 thread.start()
+running = True
 
 #create GUI
 root = Tk()
@@ -149,7 +163,7 @@ mainframe.columnconfigure(0, weight=1)
 mainframe.columnconfigure(1, weight=1)
 mainframe.pack(fill='x')
 
-#create and add frame to hold widgets on the left side of the GUI
+ame to hold widgets on the left side of the GUI
 leftFrame = Frame(mainframe)
 leftFrame.columnconfigure(0, weight=1)
 leftFrame.grid(row=0,column=0,pady=(0,10))
@@ -210,5 +224,7 @@ root.after(100, check_queue())
 
 #run GUI
 root.mainloop()
-
-thread.join()
+running = False
+# note for nate, will delete eventually:
+# padx=(left,right)
+# pady=(top,bottom)
