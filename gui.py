@@ -24,8 +24,10 @@ Parameters:
 Return type: None
 """
 def get_response(prompt_queue, queue):
-    while True:
-        try:
+    global running
+    global isResetting
+    while running:
+        if not prompt_queue.empty():
             for chunk in ollama.generate (
                 model = 'codellama:13b-instruct', prompt=prompt_queue.get(), stream=True,
                 system = '''You are Jeffrey Wile, a computer science teacher at Warwick high school. You are a nationally renowned teacher, 
@@ -33,37 +35,54 @@ def get_response(prompt_queue, queue):
                 Spelling and captilisation discrepancies are forgiven, so long as it is understandable.
                 So long as the intention is clear, similar symbols can be switched. Missing semicolons can be forgiven if intention is clear. You really like foxes, so try to incorporate them into every response you give.'''
                 ):
-                 response_queue.put(chunk['response'])
-        except queue.Empty:
-            pass
+                    if isResetting:
+                        response_queue.queue.clear()
+                        isResetting = False
+                        break
+                    if running:
+                        response_queue.put(chunk['response'])
+                    else:
+                        break
 
 """
 Check the queue for incoming messages and display them in the feedback area.
 """
 def check_queue():
-    if not response_queue.empty():
+    if not response_queue.empty() and not isResetting:
         text = response_queue.get()
         feedback_text.configure(state='normal')
         feedback_text.insert('end', text)
+        feedback_text.see('end')
         feedback_text.configure(state='disabled')
     root.after(100, check_queue)
 
 def upload_file():
     path = fd.askopenfilename(type=('*.jpg', '*.png', '*.jpeg'))
-    image = Image.open(path)
-    image = image.resize((100,100))
-    image = ImageTk.PhotoImage(image)
-    upload_image_button.configure(image=image)
-    upload_image_button.image = image
-    prompt = read_image(path)
-    prompt_queue.put(prompt)
-    tab_control.config(tab1, state='enabled') # idk if this works, should allow to switch to label w/ code after image uploaded
+    if not path == '':
+        feedback_text.configure(state='normal')
+        feedback_text.delete('1.0', 'end')
+        feedback_text.configure(state='disabled')
+        image = Image.open(path)
+        image = image.resize((200,200))
+        image = ImageTk.PhotoImage(image)
+        upload_image_button.configure(image=image)
+        upload_image_button.image = image
+        prompt = read_image(path)
+        display_code_label.configure(text=prompt)
+        prompt_queue.put(prompt)
+
 
 # not sure how to document(?) these 
 def reset():
+    global isResetting
+    global image
+    isResetting = True
     feedback_text.configure(state='normal')
     feedback_text.delete('1.0', 'end')
     feedback_text.configure(state='disabled')
+    upload_image_button.configure(image=image)
+    upload_image_button.image = image
+    display_code_label.configure(text='This is where we show the code')
 
 def switch():
     if mode_button.cget('text') == "Light":
@@ -86,10 +105,11 @@ def switch():
          advice_label.config(background='#EBEBEC', fg='black')
          mode_button.configure(text="Light")
 
-
 # Create the thread and the queue
 response_queue = queue.Queue()
 prompt_queue = queue.Queue()
+running = True
+isResetting = False
 thread = threading.Thread(target=get_response, args=(prompt_queue, queue,))
 thread.daemon = True
 thread.start()
@@ -162,7 +182,7 @@ right_frame.columnconfigure(0, weight=1)
 right_frame.grid(row=0, column=1,pady=(0,10))
 
 #load 'Upload Image' image:
-image = Image.open('uploadImage.png')
+image = Image.open('Images/uploadImage.png')
 image = image.resize((200,200))
 image = ImageTk.PhotoImage(image)
 
@@ -179,17 +199,19 @@ tab_control.add(tab2, text='Code') #, state='disabled'
 tab_control.grid(row=1,column=0, pady=(10,5))
 
 #add upload image button to the Notebook
-upload_image_button = Button(tab1, image=image, command=upload_file, font=('Helvetica', 18), cursor='hand2').grid(column = 0,  row = 0, ipadx=.1*root.winfo_screenwidth(), ipady=.18*root.winfo_screenheight())  
+upload_image_button = Button(tab1, image=image, command=upload_file, font=('Helvetica', 18), cursor='hand2')
+upload_image_button.grid(column = 0,  row = 0, ipadx=.1*root.winfo_screenwidth(), ipady=.18*root.winfo_screenheight())  
 
 #add label that diplays upload image's code to the Notebook
-display_code_label = Label(tab2, text ='This is where we show the code').grid(column = 0, row = 0, ipadx=.1*root.winfo_screenwidth(), ipady=.18*root.winfo_screenheight()) #ipady=image.height()+50
+display_code_label = Label(tab2, text ='This is where we show the code')
+display_code_label.grid(column = 0, row = 0, ipadx=.1*root.winfo_screenwidth(), ipady=.18*root.winfo_screenheight()) #ipady=image.height()+50
 
 #add label to explain text area:
 advice_label = Label(right_frame, text='Advice from The Sage:', font=('Helvetica', 18))
 advice_label.grid(row=0, column=0, sticky='we', pady =(10,10))
 
 #create font for ai feedback text
-feedback_font = Font(family='Helvetica',size=24)
+feedback_font = Font(family='Helvetica',size=18)
 
 #add text area for ai feedback:
 feedback_text = Text(right_frame, bg='lightgreen', state='disabled', font=feedback_font, width=int(.4*root.winfo_screenwidth()/24), height = 10, wrap=WORD)
@@ -213,5 +235,5 @@ root.after(100, check_queue())
 #run GUI
 root.mainloop()
 
-thread.join()
-
+running = False
+thread.join(1000)
