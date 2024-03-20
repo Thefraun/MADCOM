@@ -6,10 +6,10 @@ from tkinter.ttk import Separator
 from tkinter.ttk import Style
 from tkinter import filedialog as fd
 from PIL import Image, ImageTk
-#from vision import read_image
+from vision import read_image
 import time
 
-#import ollama
+import ollama
 import threading
 import queue
 
