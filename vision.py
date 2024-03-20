@@ -9,22 +9,22 @@ from PIL import Image
 import sys
 import time
 
-"""
-Reads an image from the specified file path and returns the detected text.
-
-Parameters:
-    img_file_path (str): The path to the image file.
-
-Returns:
-    str: The detected text from the image, line by line.
-"""
 def read_image(img_file_path):
+    """
+    Reads an image from the specified file path and returns the detected text using Microsoft Azure computer vision (inspired by the Azure quickstart guide)
+
+    Parameters:
+        img_file_path (str): The path to the image file.
+
+    Returns:
+        text: The detected text from the image, line by line.
+    """
     # Set up the client
     subscription_key = os.environ["VISION_KEY"]
     endpoint = os.environ["VISION_ENDPOINT"]
     computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
     
-    # Get an image with text
+    # GOpen the image and process the text
     read_image = open(img_file_path, "rb")
     read_response = computervision_client.read_in_stream(read_image,  raw=True)
 
