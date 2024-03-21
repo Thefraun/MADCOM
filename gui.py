@@ -177,7 +177,9 @@ root.title('')
 heading_font = Font(family='Helvetica',size=36,weight='bold')
 
 # Add a heading @ top of GUI w/ application name
-heading = Label(root, text='Script Sage',  font=heading_font, pady=15)
+logo = Image.open('ScriptSage.png')
+logo = ImageTk.PhotoImage(logo)
+heading = Label(root, image=logo,  font=heading_font, pady=15)
 heading.pack(fill='x')
 
 # Add a line separator
