@@ -32,10 +32,7 @@ def get_response(prompt_queue, queue):
         if not prompt_queue.empty():
             for chunk in ollama.generate (
                 model = 'codellama:13b-instruct', prompt=prompt_queue.get(), stream=True,
-                system = '''You are a computer science tutor. You will be given sections of code, and you must analyse and give feedback based on the usage of best practices, and whether it functions as it reasonably should.
-                            Your response should be no longer than 500 characters. If it would be beneficial, include examples of what the code would output if given an input. Be sure to stay solely on the topic of coomputer science. DO NOT INCLUDE FOXES OR ANY MENTION OF THEM.
-                            Also, please do not start writing code that is not necessary for the benefit of the student. Any code written should be in the same language that the prompt was provided in. Be concise and specific with every given response. If the prompt does not contain code, explain that you are
-                            designed to analyse code, and cannot answer prompts unrelated to computer science.
+                system = '''Please analyse the following Python code. Please ignore any errors in indentation.
                             Thank you!''',
                 ):
                     response_over = False
@@ -110,6 +107,12 @@ def switch():
          style.theme_use('darkMode')
          right_frame.config(background=default_dark)
          advice_label.config(background=default_dark, fg='white')
+         reset_button.config(bg='#0acd6f', highlightbackground='#0acd6f', activebackground='#0acd6f', fg='black')
+         mode_button.config(bg='#0acd6f', highlightbackground='#0acd6f', activebackground='#0acd6f', fg='black')
+         logo = Image.open('Images/ScriptSageDark.png')
+         logo = ImageTk.PhotoImage(logo)
+         heading_label.config(image=logo)
+         heading_label.image = logo
     else:
          root.config(background=default_light)
          top_frame.config(background=default_light)
@@ -121,6 +124,12 @@ def switch():
          style.theme_use('lightMode')
          right_frame.config(background=default_light)
          advice_label.config(background=default_light, fg='black')
+         reset_button.config(bg='#056939', highlightbackground='#056939', activebackground='#056939', fg='white')
+         mode_button.config(bg='#056939', highlightbackground='#056939', activebackground='#056939', fg='white')
+         logo = Image.open('Images/ScriptSage.png')
+         logo = ImageTk.PhotoImage(logo)
+         heading_label.config(image=logo)
+         heading_label.image = logo
 
 # Create the thread and the queue
 # Inspired by user Furas
@@ -192,14 +201,14 @@ space_label.grid(row=0, column=0, padx=(10,0))
 heading_font = Font(family='Helvetica', size=36, weight='bold')
 
 # Create and add a heading @ top of GUI w/ application name
-logo = Image.open('ScriptSage.png')
+logo = Image.open('Images/ScriptSage.png')
 logo = ImageTk.PhotoImage(logo)
 heading_label = Label(top_frame, image=logo, font=heading_font, pady=15)
 heading_label.grid(row=0, column=1)
 
 # Create and add a button to switch between light and dark mode
-mode_button = Button(top_frame, text='Light Mode',fg='white',  bg='blue', highlightbackground='blue', activebackground='blue', command=switch, font=('Arial', 16), cursor='hand2')
-mode_button.grid(row=0, column=2, sticky='e', padx=(0,10))
+mode_button = Button(top_frame, text='Light Mode',fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=switch, font=('Arial', 16), cursor='hand2')
+mode_button.grid(row=0, column=2, sticky='e', padx=(0,105), pady=(90,0))
 
 # Create and add a line separator
 top_seperator = Separator(root, orient='horizontal')
@@ -219,10 +228,10 @@ left_frame.grid(row=0,column=0,pady=(0,10))
 # Create and add a frame to hold widgets on the right side of the GUI
 right_frame = Frame(mainframe)
 right_frame.columnconfigure(0, weight=1)
-right_frame.grid(row=0, column=1,pady=(0,10))
+right_frame.grid(row=0, column=1,pady=(0,45))
 
 # Create/load 'Upload Image' image:
-image = Image.open('uploadImage.png')
+image = Image.open('Images/uploadImage.png')
 image = image.resize((550,600))
 image = ImageTk.PhotoImage(image)
 
@@ -240,26 +249,26 @@ tab_control.grid(row=1,column=0, pady=(10,5))
 
 # Create and add the upload image button to the Notebook
 upload_image_button = Button(tab1, image=image, command=upload_file, cursor='hand2')
-upload_image_button.grid(column = 0,  row = 0)  
+upload_image_button.grid(column=0,  row=0)  
 
 # Create and add a label that diplays upload image's code to the Notebook
-display_code_label = Label(tab2, text ='This is where your code from the image will appear.')
+display_code_label = Label(tab2, text ='This is where your code from the image will appear.', font=('Futura', 16))
 display_code_label.grid(column = 0, row = 0)
 
 # Create and add a label to explain text area
 advice_label = Label(right_frame, text='Advice from The Sage:', font=('Futura', 20))
-advice_label.grid(row=0, column=0, sticky='we', pady =(10,10))
+advice_label.grid(row=0, column=0, sticky='we', pady=(0,10))
 
 # Create font for ai feedback text
 feedback_font = Font(family='Helvetica',size=18)
 
 # Create and add a text area for ai feedback:
-feedback_text = Text(right_frame, bg='lightgreen', state='disabled', font=feedback_font, width=10, height=10, wrap=WORD)
-feedback_text.grid(row=1, column=0, ipadx=300, ipady=165)
+feedback_text = Text(right_frame, bg='lightgray', state='disabled', font=feedback_font, width=10, height=10, wrap=WORD)
+feedback_text.grid(row=1, column=0, ipadx=300, ipady=170)
 
 # Create and add a button to reset image and feedback
-reset_button = Button(left_frame, text='Reset', fg='white', bg='blue', highlightbackground='blue', activebackground='blue', command=reset, font=('Arial', 16), cursor='hand2')
-reset_button.grid(row=2, column=0, sticky='w', padx=10, pady=5)
+reset_button = Button(left_frame, text='Reset', fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=reset, font=('Arial', 16), cursor='hand2')
+reset_button.grid(row=2, column=0, sticky='w', pady=5)
 
 # Create and add a line separator
 bottom_seperator = Separator(root, orient='horizontal')
