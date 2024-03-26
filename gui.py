@@ -74,7 +74,6 @@ def upload_file():
         prompt_queue.put(prompt)
 
 
-# not sure how to document(?) these 
 def reset():
     """
     Resets the program to allow for the insertion of another prompt
