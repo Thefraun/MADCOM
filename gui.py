@@ -64,14 +64,20 @@ def upload_file():
     """
     path = fd.askopenfilename(type=('*.jpg', '*.png', '*.jpeg'))
     if not path == '':
+        root.config(cursor='wait')
+        root.update()
         image = Image.open(path)
         image = image.resize((550,600))
         image = ImageTk.PhotoImage(image)
         upload_image_button.configure(image=image)
         upload_image_button.image = image
-        prompt = read_image(path)
-        display_code_label.configure(text=prompt)
-        prompt_queue.put(prompt)
+        root.config(cursor='arrow')
+        root.update()
+        
+def send_image(path):
+    prompt = read_image(path)
+    display_code_label.configure(text=prompt)
+    prompt_queue.put(prompt)
 
 
 def reset():
