@@ -1,4 +1,3 @@
-
 from tkinter import *
 from tkinter.font import Font
 from tkinter.ttk import Notebook
