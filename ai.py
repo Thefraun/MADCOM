@@ -3,16 +3,25 @@ import threading
 import queue
 import time
 
-# TODO: Add Documentation
+# TODO: Add documentation
 class AI:
     
     def set_prompt(self, prompt):
+        """
+        Sets a prompt to be used in generate_response
+        """
         self.prompt_queue.put(prompt)
         
     def set_is_resetting(self, is_resetting):
+        """
+        Sets if the AI is resetting
+        """
         self.is_resetting = is_resetting
         
     def get_response_chunk(self):
+        """
+        Returns the last generated chunk from the queue
+        """     
         return self.response_queue.get()
 
     def generate_response(self, prompt_queue):
