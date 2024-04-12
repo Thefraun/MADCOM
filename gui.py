@@ -13,9 +13,9 @@ import threading
 
 #TODO: Add docstrings, documentation, pretty up?
 
-# Create GUI
+# Defines the GUI class, containing the GUI and all functions associated
 class GUI:
-    def switch(self):
+    def mode_toggle(self):
         """
         Toggle the program between light and dark mode
         """
@@ -89,6 +89,9 @@ class GUI:
             self.root.update()
             
     def send_prompt(self, path):
+        """
+        Sends the prompt to vision.py for processing and displays the read prompt in the GUI
+        """
         prompt = read_image(path)
         ai.set_prompt(prompt)
         self.display_code_label.configure(text=prompt)
@@ -108,39 +111,39 @@ class GUI:
         self.root = Tk()
 
         # Create an instance of ttk style
-        self.style = Style()
+        style = Style()
 
         # Create different colors to be used
-        self.black = 'black'
-        self.grey = 'grey'
-        self.white = 'white' 
+        black = 'black'
+        grey = 'grey'
+        white = 'white' 
         self.default_light = '#EBEBEC'
         self.default_dark = '#181A1B'
 
         # Create font for tabs
-        self.tab_font = Font(family='Futura', size=16)
+        tab_font = Font(family='Futura', size=16)
 
         # Create style for light mode for Notebook
-        self.style.theme_create( 'lightMode', settings ={
+        style.theme_create( 'lightMode', settings ={
                 'TNotebook': {
                     'configure': {'tabmargins': [5, 5, 10, 5], 'background': self.default_light }},
                 'TNotebook.Tab': {
-                    'configure': {'padding': [30, 10], 'borderwidth':[2], 'foreground': self.black, 'font': self.tab_font},
+                    'configure': {'padding': [30, 10], 'borderwidth':[2], 'foreground': black, 'font': tab_font},
                     'map':       {'background': [('selected', self.default_light), ('!active', self.default_light)],
                                 'expand': [('selected', [5, 5, 5, 5])]}}})
 
 
         # Create style for dark mode for Notebook
-        self.style.theme_create( 'darkMode', settings ={
+        style.theme_create( 'darkMode', settings ={
                 'TNotebook': {
                     'configure': {'tabmargins': [5, 5, 10, 5],'background': self.default_dark }},
                 'TNotebook.Tab': {
-                    'configure': {'padding': [30, 10], 'borderwidth':[2], 'foreground': self.white, 'font': self.tab_font},
-                    'map':       {'background': [('selected', self.default_dark), ('!active', self.default_dark), ('active', self.grey)],
+                    'configure': {'padding': [30, 10], 'borderwidth':[2], 'foreground': white, 'font': tab_font},
+                    'map':       {'background': [('selected', self.default_dark), ('!active', self.default_dark), ('active', grey)],
                                 'expand': [('selected', [5, 5, 5, 5])]}}})
 
         # Use light mode style
-        self.style.theme_use('lightMode')
+        style.theme_use('lightMode')
 
         # Make GUI full screen
         self.root.geometry('{0}x{1}+0+0'.format(self.root.winfo_screenwidth(), self.root.winfo_screenheight()))
@@ -160,16 +163,16 @@ class GUI:
         self.space_label.grid(row=0, column=0, padx=(10,0))
 
         # Create font for the heading
-        self.heading_font = Font(family='Helvetica', size=36, weight='bold')
+        heading_font = Font(family='Helvetica', size=36, weight='bold')
 
         # Create and add a heading @ top of GUI w/ application name
         logo = Image.open('Images/ScriptSage.png')
         logo = ImageTk.PhotoImage(logo)
-        self.heading_label = Label(self.top_frame, image=logo, font=self.heading_font, pady=15)
+        self.heading_label = Label(self.top_frame, image=logo, font=heading_font, pady=15)
         self.heading_label.grid(row=0, column=1)
 
         # Create and add a button to switch between light and dark mode
-        self.mode_button = Button(self.top_frame, text='Light Mode',fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=self.switch, font=('Arial', 16), cursor='hand2')
+        self.mode_button = Button(self.top_frame, text='Light Mode',fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=self.mode_toggle, font=('Arial', 16), cursor='hand2')
         self.mode_button.grid(row=0, column=2, sticky='e', padx=(0,105), pady=(90,0))
 
         # Create and add a line separator
@@ -214,7 +217,7 @@ class GUI:
         self.upload_image_button.grid(column=0,  row=0)  
 
         # Create and add a label that diplays upload image's code to the Notebook
-        self.display_code_label = Label(self.tab2, text ='This is where your code from the image will appear.', font=('Futura', 16))
+        self.display_code_label = Label(self.tab2, text ='This is where your code from the image will appear.', font=('Futura', 16), justify=LEFT)
         self.display_code_label.grid(column = 0, row = 0)
 
         # Create and add a label to explain text area
@@ -244,9 +247,6 @@ class GUI:
 
         # Run GUI
         self.root.mainloop()
-# End the program and the thread
-# running = False
-# thread.join(1000)
 if __name__ == '__main__':
     ai = AI()
     gui = GUI()

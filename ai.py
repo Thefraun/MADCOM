@@ -1,4 +1,5 @@
-import ollama
+try: import ollama 
+except ImportError: print('Ollama is not installed. Please install it and try again.')
 import threading
 import queue
 import time
@@ -26,13 +27,13 @@ class AI:
 
     def generate_response(self, prompt_queue):
         """
-        Function to get response using a prompt and queue for storing the response.
-
+        Generate a response based on prompts in the prompt_queue.
+        
         Parameters:
-        - prompt: the prompt to generate the response
-        - queue: the queue to store the response
-
-        Return type: None
+            prompt_queue (Queue): A queue containing prompts to generate responses for.
+        
+        Returns:
+            None
         """
         while True:
             if not prompt_queue.empty():
@@ -47,6 +48,8 @@ class AI:
                             self.response_queue.queue.clear()
                             self.is_resetting = False
                             break
+            if(self.is_resetting):
+                self.is_resetting = False
             else:
                 time.sleep(0.1)
 
