@@ -8,7 +8,7 @@ from PIL import Image, ImageTk
 from vision import read_image
 import time
 
-import ollama
+# import ollama
 import threading
 import queue
 
