@@ -10,7 +10,6 @@ class Camera:
 
         # Declare the width and height in variables 
         width, height = 800, 600
-
         # Set the width and height 
         self.vid.set(cv2.CAP_PROP_FRAME_WIDTH, width) 
         self.vid.set(cv2.CAP_PROP_FRAME_HEIGHT, height) 
