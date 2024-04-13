@@ -20,8 +20,8 @@ def read_image(img_file_path):
         text: The detected text from the image, line by line.
     """
     # Set up the client
-    subscription_key = os.environ["VISION_KEY"]
-    endpoint = os.environ["VISION_ENDPOINT"]
+    subscription_key = os.environ["4053b232aba945f4b67f07df004bae7a"]
+    endpoint = os.environ["https://madcomimagereader.cognitiveservices.azure.com/"]
     computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
     
     # GOpen the image and process the text

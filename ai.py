@@ -1,4 +1,4 @@
-import ollama
+# import ollama
 import threading
 import queue
 import time

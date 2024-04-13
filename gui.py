@@ -1,4 +1,3 @@
-
 from tkinter import *
 from tkinter.font import Font
 from tkinter.ttk import Notebook
@@ -8,6 +7,7 @@ from tkinter import filedialog as fd
 from PIL import Image, ImageTk
 from vision import read_image
 from ai import AI
+from camera import Camera
 import time
 import threading
 
@@ -73,20 +73,22 @@ class GUI:
         """
         Asks the user to select a compatible file, and then opens the image and sends it to vision.py for processing
         """
-        path = fd.askopenfilename(type=('*.jpg', '*.png', '*.jpeg'))
-        if not path == '':
-            self.root.config(cursor='wait')
-            self.root.update()
-            prompt_thread = threading.Thread(target=self.send_prompt, args=(path,), name='prompt_thread')
-            prompt_thread.daemon = True
-            prompt_thread.start()
-            image = Image.open(path)
-            image = image.resize((550,600))
-            image = ImageTk.PhotoImage(image)
-            self.upload_image_button.configure(image=image)
-            self.upload_image_button.image = image
-            self.root.config(cursor='arrow')
-            self.root.update()
+        camera = Camera()
+        
+        # path = fd.askopenfilename(type=('*.jpg', '*.png', '*.jpeg'))
+        # if not path == '':
+        #     self.root.config(cursor='wait')
+        #     self.root.update()
+        #     prompt_thread = threading.Thread(target=self.send_prompt, args=(path,), name='prompt_thread')
+        #     prompt_thread.daemon = True
+        #     prompt_thread.start()
+        #     image = Image.open(path)
+        #     image = image.resize((550,600))
+        #     image = ImageTk.PhotoImage(image)
+        #     self.upload_image_button.configure(image=image)
+        #     self.upload_image_button.image = image
+        #     self.root.config(cursor='arrow')
+        #     self.root.update()
             
     def send_prompt(self, path):
         prompt = read_image(path)
