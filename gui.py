@@ -6,7 +6,7 @@ from tkinter.ttk import Separator
 from tkinter.ttk import Style
 from tkinter import filedialog as fd
 from PIL import Image, ImageTk
-from vision import read_image
+from cloud_services import read_image, text_to_speech
 from ai import AI
 import time
 import threading
@@ -96,6 +96,11 @@ class GUI:
         ai.set_prompt(prompt)
         self.display_code_label.configure(text=prompt)
         
+    def read_aloud(self):
+        text_to_speech_thread = threading.Thread(target=text_to_speech, args=('Hello',), name='text_to_speech_thread')
+        text_to_speech_thread.daemon = True
+        text_to_speech_thread.start()
+        
     def recieve_advice(self):
         while True:
             chunk = ai.get_response_chunk()
@@ -111,7 +116,7 @@ class GUI:
         self.root = Tk()
 
         # Create an instance of ttk style
-        style = Style()
+        self.style = Style()
 
         # Create different colors to be used
         black = 'black'
@@ -124,7 +129,7 @@ class GUI:
         tab_font = Font(family='Futura', size=16)
 
         # Create style for light mode for Notebook
-        style.theme_create( 'lightMode', settings ={
+        self.style.theme_create( 'lightMode', settings ={
                 'TNotebook': {
                     'configure': {'tabmargins': [5, 5, 10, 5], 'background': self.default_light }},
                 'TNotebook.Tab': {
@@ -134,7 +139,7 @@ class GUI:
 
 
         # Create style for dark mode for Notebook
-        style.theme_create( 'darkMode', settings ={
+        self.style.theme_create( 'darkMode', settings ={
                 'TNotebook': {
                     'configure': {'tabmargins': [5, 5, 10, 5],'background': self.default_dark }},
                 'TNotebook.Tab': {
@@ -143,7 +148,7 @@ class GUI:
                                 'expand': [('selected', [5, 5, 5, 5])]}}})
 
         # Use light mode style
-        style.theme_use('lightMode')
+        self.style.theme_use('lightMode')
 
         # Make GUI full screen
         self.root.geometry('{0}x{1}+0+0'.format(self.root.winfo_screenwidth(), self.root.winfo_screenheight()))
@@ -223,6 +228,10 @@ class GUI:
         # Create and add a label to explain text area
         self.advice_label = Label(self.right_frame, text='Advice from The Sage:', font=('Futura', 20))
         self.advice_label.grid(row=0, column=0, sticky='we', pady=(0,10))
+        
+        # Create a button that sits to the right of the advice label
+        self.ask_question_button = Button(self.right_frame, text='Ask The Sage', font=('Futura', 18), command=self.read_aloud, cursor='hand2')
+        self.ask_question_button.grid(row=0, column=0, sticky='e', pady=(0,10))
 
         # Create font for ai feedback text
         self.feedback_font = Font(family='Helvetica',size=18)

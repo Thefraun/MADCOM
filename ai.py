@@ -40,6 +40,8 @@ class AI:
                 for chunk in ollama.generate (
                     model = 'codellama:13b-instruct', prompt=prompt_queue.get(), stream=True,
                     system = '''Please analyse the following Python code. Please ignore any errors in indentation.
+                                Your response to any prompt cannot be over 500 characters or 5 sentences. If your response is over 500 characters or 5 sentences,
+                                You will be punished.
                                 Thank you!''',
                     ):
                         if not self.is_resetting:
