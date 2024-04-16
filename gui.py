@@ -68,6 +68,7 @@ class GUI:
         self.upload_image_button.configure(image=image)
         self.upload_image_button.image = image
         self.display_code_label.configure(text='This is where we show the code')
+        self.display_read_aloud(False)
             
     def upload_file(self):
         """
@@ -77,6 +78,8 @@ class GUI:
         if not path == '':
             self.root.config(cursor='wait')
             self.root.update()
+            if not self.feedback_text.get('1.0', 'end').__len__() == 0:
+                self.reset()
             prompt_thread = threading.Thread(target=self.send_prompt, args=(path,), name='prompt_thread')
             prompt_thread.daemon = True
             prompt_thread.start()
@@ -96,20 +99,35 @@ class GUI:
         ai.set_prompt(prompt)
         self.display_code_label.configure(text=prompt)
         
+    def display_read_aloud(self, make_visible):
+        '''
+        Sets the visibility of the read aloud button
+        '''
+        if make_visible:
+            self.read_aloud_button.grid(row=0, column=0, sticky='e', pady=(0,5))
+        else:
+            self.read_aloud_button.grid_forget()
+            
+        
     def read_aloud(self):
-        text_to_speech_thread = threading.Thread(target=text_to_speech, args=('Hello',), name='text_to_speech_thread')
+        text_to_speech_thread = threading.Thread(target=text_to_speech, args=(self.feedback_text.get('1.0','end'),), name='text_to_speech_thread')
         text_to_speech_thread.daemon = True
         text_to_speech_thread.start()
         
     def recieve_advice(self):
+        read_aloud_visible = False
         while True:
-            chunk = ai.get_response_chunk()
-            self.feedback_text.configure(state='normal')
-            self.feedback_text.insert('end', chunk)
-            self.feedback_text.see('end')
-            self.feedback_text.configure(state='disabled')
-            time.sleep(0.2)
-            
+            if not ai.get_has_completed():
+                chunk = ai.get_response_chunk()
+                self.feedback_text.configure(state='normal')
+                self.feedback_text.insert('end', chunk)
+                self.feedback_text.see('end')
+                self.feedback_text.configure(state='disabled')
+                read_aloud_visible = False
+            elif ai.get_has_completed() and not read_aloud_visible:
+                self.display_read_aloud(True)
+                read_aloud_visible = True
+                            
     def __init__(self):
         
         # Create the main window
@@ -201,9 +219,9 @@ class GUI:
         self.right_frame.grid(row=0, column=1,pady=(0,45))
 
         # Create/load 'Upload Image' image:
-        image = Image.open('Images/uploadImage.png')
-        image = image.resize((550,600))
-        image = ImageTk.PhotoImage(image)
+        upload_image = Image.open('Images/uploadImage.png')
+        upload_image = upload_image.resize((550,600))
+        upload_image = ImageTk.PhotoImage(upload_image)
         
         # Create and add tabbed section holding upload image button and label to display code from image
         self.tab_control = Notebook(self.left_frame)
@@ -218,7 +236,7 @@ class GUI:
         self.tab_control.grid(row=1,column=0, pady=(10,5))
 
         # Create and add the upload image button to the Notebook
-        self.upload_image_button = Button(self.tab1, image=image, command=self.upload_file, cursor='hand2')
+        self.upload_image_button = Button(self.tab1, image=upload_image, command=self.upload_file, cursor='hand2')
         self.upload_image_button.grid(column=0,  row=0)  
 
         # Create and add a label that diplays upload image's code to the Notebook
@@ -229,9 +247,12 @@ class GUI:
         self.advice_label = Label(self.right_frame, text='Advice from The Sage:', font=('Futura', 20))
         self.advice_label.grid(row=0, column=0, sticky='we', pady=(0,10))
         
-        # Create a button that sits to the right of the advice label
-        self.ask_question_button = Button(self.right_frame, text='Ask The Sage', font=('Futura', 18), command=self.read_aloud, cursor='hand2')
-        self.ask_question_button.grid(row=0, column=0, sticky='e', pady=(0,10))
+        # Create and load the read aloud image (Credit to: https://freeicons.io/profile/22578)
+        read_aloud_image = Image.open('Images/readAloud.png')
+        read_aloud_image = ImageTk.PhotoImage(read_aloud_image)
+        
+        # Create and add a button to read the feedback aloud
+        self.read_aloud_button = Button(self.right_frame, image=read_aloud_image, command=self.read_aloud, cursor='hand2')
 
         # Create font for ai feedback text
         self.feedback_font = Font(family='Helvetica',size=18)
@@ -248,14 +269,14 @@ class GUI:
         self.bottom_seperator = Separator(self.root, orient='horizontal')
         self.bottom_seperator.pack(fill='x', padx='30')
 
-        # Begins checking the response queue every 100 milliseconds
-        
+        # Begins checking the response queue every 200 milliseconds
         recieve_advice_thread = threading.Thread(target=self.recieve_advice, name='recieve_advice_thread')
         recieve_advice_thread.daemon = True
         recieve_advice_thread.start()
 
         # Run GUI
         self.root.mainloop()
+        
 if __name__ == '__main__':
     ai = AI()
     gui = GUI()
