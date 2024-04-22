@@ -40,7 +40,7 @@ def read_image(img_file_path):
         read_result = computervision_client.get_read_result(operation_id)
         if read_result.status not in ['notStarted', 'running']:
             break
-        time.sleep(1)
+        time.sleep(.5)
 
     # Print the detected text, line by line
     text = ''

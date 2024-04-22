@@ -33,23 +33,12 @@ class AI:
 
     def generate_response_ai(self):
         """
-        Generate a response based on prompts in the prompt_queue.
-        
-        Parameters:
-            prompt_queue (Queue): A queue containing prompts to generate responses for.
-        
-        Returns:
-            None
+        Generate a response based on prompts in the prompt_queue using AI, and puts it into the response_queue
         """
         while True:
             if not self.prompt_queue.empty():
-                for chunk in ollama.generate (
-                    model = 'codellama:13b-instruct', prompt=self.prompt_queue.get(), stream=True,
-                    system = '''Please analyse the following Python code. Please ignore any errors in indentation.
-                                Your response to any prompt cannot be over 500 characters or 5 sentences. If your response is over 500 characters or 5 sentences,
-                                You will be punished.
-                                Thank you!''',
-                ):
+                self.last_prompt = self.prompt_queue.get()
+                for chunk in ollama.generate (model = 'ScriptSage', prompt=self.last_prompt, stream=True):
                     if not self.is_resetting:
                         self.response_queue.put(chunk['response'])
                     else:
@@ -62,11 +51,29 @@ class AI:
                 self.is_resetting = False
             time.sleep(0.2)
             
-    def generate_response_no_ai(self, prompt_queue):
+    def generate_follow_up_ai(self, past_message):
+        """
+        Generate a follow-up based on a past message using AI
+        """
+        self.has_completed = False
+        for chunk in ollama.chat(model = 'ScriptSage', messages=[{'role': 'user', 'content': self.last_prompt}, {'role': 'assistant', 'content': past_message}, {'role': 'user', 'content': 'Can you please give me more details about the errors?'}], stream=True):
+            if not self.is_resetting:
+                print(chunk['message']['content'])
+                self.response_queue.put(chunk['message']['content'])
+            else:
+                self.response_queue.queue.clear()
+                self.is_resetting = False
+                break
+        self.has_completed = True
+    def generate_response_no_ai(self):
+        """
+        Generates a response when the user inputs a new prompt, without the use of AI
+        """
         while True:
             if not self.prompt_queue.empty():
+                self.last_prompt = self.prompt_queue.get()
                 if not self.is_resetting:
-                    self.response_queue.put('This is where the AI would give you feedback.')
+                    self.response_queue.put('This is where the AI would give you feedback based on this code: ' + self.last_prompt)
                     self.has_completed = True
                 else:
                     self.response_queue.queue.clear()
@@ -74,14 +81,18 @@ class AI:
                     self.has_completed = False
 
     def __init__(self):
+        """
+        Creates an instance of the Ollama class and all of the associated variables
+        """
         global has_ollama
+        self.last_prompt = ''
         self.is_resetting = False
         self.has_completed = False
         self.prompt_queue = queue.Queue()
         self.response_queue = queue.Queue()
         if has_ollama:
-            ai_thread = threading.Thread(target=self.generate_response_ai, args=(self.prompt_queue,), name='ai_thread')
+            ai_thread = threading.Thread(target=self.generate_response_ai, args=(), name='ai_thread')
             ai_thread.daemon = True
             ai_thread.start()
         else:
-            no_ai_thread = threading.Thread(target=self.generate_response_no_ai, args=(self.prompt_queue,), name='no_ai_thread')
+            no_ai_thread = threading.Thread(target=self.generate_response_no_ai, args=(), name='no_ai_thread')

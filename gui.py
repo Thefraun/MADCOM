@@ -20,6 +20,7 @@ class GUI:
         Toggle the program between light and dark mode
         """
         if self.mode_button.cget('text') == 'Light Mode':
+            # Sets all widgets to dark mode
             self.root.config(background=self.default_dark)
             self.top_frame.config(background=self.default_dark)
             self.space_label.config(background=self.default_dark, fg='#181A1B')
@@ -37,6 +38,7 @@ class GUI:
             self.heading_label.config(image=logo)
             self.heading_label.image = logo
         else:
+            # Sets all widgets to light mode
             self.root.config(background=self.default_light)
             self.top_frame.config(background=self.default_light)
             self.space_label.config(background=self.default_light, fg='#EBEBEC')
@@ -58,38 +60,52 @@ class GUI:
         """
         Resets the program to allow for the insertion of another prompt
         """
+        # Sends a signal to the AI class telling it to reset
         ai.set_is_resetting(True)
+        
+        # Deletes all text in the feedback box
         self.feedback_text.configure(state='normal')
         self.feedback_text.delete('1.0', 'end')
         self.feedback_text.configure(state='disabled')
+        
+        # Resets the upload image button to restore it to the original image
         image = Image.open('Images/uploadImage.png')
         image = image.resize((550,600))
         image = ImageTk.PhotoImage(image)
         self.upload_image_button.configure(image=image)
         self.upload_image_button.image = image
+        
+        # Changes the display code label back to its original text
         self.display_code_label.configure(text='This is where we show the code')
+        
+        # Makes the read_aloud_button invisible
         self.display_read_aloud(False)
             
     def upload_file(self):
         """
         Asks the user to select a compatible file, and then opens the image and sends it to vision.py for processing
         """
+        # Asks the user to open a file and stores the path of the file
         path = fd.askopenfilename(type=('*.jpg', '*.png', '*.jpeg'))
+        
+        # Checks if the path is empty before performing any other actions
         if not path == '':
-            self.root.config(cursor='wait')
-            self.root.update()
+            
+            # Check if the program has been reset, and if not, resets
             if not self.feedback_text.get('1.0', 'end').__len__() == 0:
                 self.reset()
+            
+            # Begins a thread of the function send_prompt to read the prompt and send it to the AI
             prompt_thread = threading.Thread(target=self.send_prompt, args=(path,), name='prompt_thread')
             prompt_thread.daemon = True
             prompt_thread.start()
+            
+            # Sets the upload_image_button to display the uploaded image
             image = Image.open(path)
             image = image.resize((550,600))
             image = ImageTk.PhotoImage(image)
             self.upload_image_button.configure(image=image)
             self.upload_image_button.image = image
-            self.root.config(cursor='arrow')
-            self.root.update()
             
     def send_prompt(self, path):
         """
@@ -127,6 +143,14 @@ class GUI:
             elif ai.get_has_completed() and not read_aloud_visible:
                 self.display_read_aloud(True)
                 read_aloud_visible = True
+                
+    def follow_up(self):
+        follow_up_thread = threading.Thread(target=ai.generate_follow_up_ai, args=(self.feedback_text.get('1.0','end'),), name='follow_up_thread')
+        follow_up_thread.daemon = True
+        follow_up_thread.start()
+        self.feedback_text.configure(state='normal')
+        self.feedback_text.delete('1.0', 'end')
+        self.feedback_text.configure(state='disabled')
                             
     def __init__(self):
         
@@ -216,7 +240,7 @@ class GUI:
         # Create and add a frame to hold widgets on the right side of the
         self.right_frame = Frame(self.mainframe)
         self.right_frame.columnconfigure(0, weight=1)
-        self.right_frame.grid(row=0, column=1,pady=(0,45))
+        self.right_frame.grid(row=0, column=1,pady=(0,10))
 
         # Create/load 'Upload Image' image:
         upload_image = Image.open('Images/uploadImage.png')
@@ -237,7 +261,7 @@ class GUI:
 
         # Create and add the upload image button to the Notebook
         self.upload_image_button = Button(self.tab1, image=upload_image, command=self.upload_file, cursor='hand2')
-        self.upload_image_button.grid(column=0,  row=0)  
+        self.upload_image_button.grid(column=0, row=0)  
 
         # Create and add a label that diplays upload image's code to the Notebook
         self.display_code_label = Label(self.tab2, text ='This is where your code from the image will appear.', font=('Futura', 16), justify=LEFT)
@@ -259,7 +283,11 @@ class GUI:
 
         # Create and add a text area for ai feedback:
         self.feedback_text = Text(self.right_frame, bg='lightgray', state='disabled', font=self.feedback_font, width=10, height=10, wrap=WORD)
-        self.feedback_text.grid(row=1, column=0, ipadx=300, ipady=170)
+        self.feedback_text.grid(row=1, column=0, ipadx=300, ipady=175)
+        
+        # Create follow up button
+        self.details_button = Button(self.right_frame, text='Follow Up', fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=self.follow_up, font=('Arial', 16), cursor='hand2')
+        self.details_button.grid(row=2, column=0, sticky='w', pady=5)
 
         # Create and add a button to reset image and feedback
         self.reset_button = Button(self.left_frame, text='Reset', fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=self.reset, font=('Arial', 16), cursor='hand2')
