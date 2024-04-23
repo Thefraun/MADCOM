@@ -7,7 +7,7 @@ from tkinter import filedialog as fd
 from PIL import Image, ImageTk
 from vision import read_image
 from ai import AI
-from camera import Camera
+from picture import Camera
 import time
 import threading
 
@@ -74,6 +74,7 @@ class GUI:
         Asks the user to select a compatible file, and then opens the image and sends it to vision.py for processing
         """
         camera = Camera()
+        camera.open_camera()
         
         # path = fd.askopenfilename(type=('*.jpg', '*.png', '*.jpeg'))
         # if not path == '':

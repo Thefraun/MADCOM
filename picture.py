@@ -6,7 +6,7 @@ class Camera:
     
     def __init__(self):
         # Define a video capture object 
-        self.vid = cv2.VideoCapture(2) # 2 -> index of webcam cuz its the second camera option
+        self.vid = cv2.VideoCapture(0) # 2 -> index of webcam cuz its the second camera option
 
         # Declare the width and height in variables 
         width, height = 800, 600
@@ -16,6 +16,8 @@ class Camera:
 
         # Create a GUI app 
         self.app = Tk() 
+        # Set the size of the app window
+       # self.app.geometry(f'{width}x{height}')
 
         # Bind the app with Escape keyboard to 
         # quit app whenever pressed 
@@ -24,11 +26,15 @@ class Camera:
         # Create a label and display it on app 
         self.label_widget = Label(self.app) 
         self.label_widget.pack() 
-        self.open_camera()
-
-    # Create a function to open camera and 
-    # display it in the label_widget on app 
-
+        
+        # Create a button to open the camera in GUI app 
+        self.button1 = Button(self.app, text="Open Camera", command=open_camera) 
+        self.button1.pack() 
+    
+        # Create an infinite loop for displaying app on screen 
+        self.app.mainloop() 
+       
+        
     def open_camera(self): 
 
         # Capture the video frame by frame 
@@ -50,7 +56,4 @@ class Camera:
         self.label_widget.configure(image=photo_image) 
 
         # Repeat the same process after every 10 seconds 
-        self.label_widget.after(10, open_camera) 
-        
-        # Create an infinite loop for displaying app on screen 
-        self.app.mainloop() 
+        self.label_widget.after(10, self.open_camera) 
