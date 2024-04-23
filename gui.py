@@ -74,7 +74,6 @@ class GUI:
         Asks the user to select a compatible file, and then opens the image and sends it to vision.py for processing
         """
         camera = Camera()
-        camera.open_camera()
         
         # path = fd.askopenfilename(type=('*.jpg', '*.png', '*.jpeg'))
         # if not path == '':

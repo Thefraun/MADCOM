@@ -2,6 +2,7 @@
 from tkinter import *
 import cv2 
 from PIL import Image, ImageTk 
+import threading
 class Camera:
     
     def __init__(self):
@@ -15,7 +16,7 @@ class Camera:
         self.vid.set(cv2.CAP_PROP_FRAME_HEIGHT, height) 
 
         # Create a GUI app 
-        self.app = Tk() 
+        self.app = Toplevel()
         # Set the size of the app window
        # self.app.geometry(f'{width}x{height}')
 
@@ -27,9 +28,11 @@ class Camera:
         self.label_widget = Label(self.app) 
         self.label_widget.pack() 
         
-        # Create a button to open the camera in GUI app 
-        self.button1 = Button(self.app, text="Open Camera", command=open_camera) 
-        self.button1.pack() 
+        # Create a button to open the camera in GUI app
+        
+        camera_thread = threading.Thread(target=self.open_camera, name='camera_thread')
+        camera_thread.daemon = True
+        camera_thread.start()
     
         # Create an infinite loop for displaying app on screen 
         self.app.mainloop() 
@@ -41,16 +44,18 @@ class Camera:
         _, frame = self.vid.read() 
 
         # Convert image from one color space to other 
-        opencv_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA) 
+        opencv_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+        
+        opencv_image = cv2.flip(opencv_image, 1)
 
         # Capture the latest frame and transform to image 
         captured_image = Image.fromarray(opencv_image) 
 
         # Convert captured image to photoimage 
-        photo_image = ImageTk.PhotoImage(image=captured_image) 
+        photo_image = ImageTk.PhotoImage(image=captured_image)
 
         # Displaying photoimage in the label 
-        self.label_widget.photo_image = photo_image 
+        self.label_widget.photo_image = photo_image
 
         # Configure image in the label 
         self.label_widget.configure(image=photo_image) 
