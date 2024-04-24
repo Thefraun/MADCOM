@@ -79,7 +79,7 @@ class GUI:
         self.display_code_label.configure(text='This is where we show the code')
         
         # Makes the read_aloud_button invisible
-        self.display_read_aloud(False)
+        self.display_read_aloud_and_follow_up(False)
             
     def upload_file(self):
         """
@@ -115,15 +115,16 @@ class GUI:
         ai.set_prompt(prompt)
         self.display_code_label.configure(text=prompt)
         
-    def display_read_aloud(self, make_visible):
+    def display_read_aloud_and_follow_up(self, make_visible):
         '''
         Sets the visibility of the read aloud button
         '''
         if make_visible:
             self.read_aloud_button.grid(row=0, column=0, sticky='e', pady=(0,5))
+            self.details_button.grid(row=2, column=0, sticky='w', pady=5)
         else:
             self.read_aloud_button.grid_forget()
-            
+            self.details_button.grid_forget()
         
     def read_aloud(self):
         text_to_speech_thread = threading.Thread(target=text_to_speech, args=(self.feedback_text.get('1.0','end'),), name='text_to_speech_thread')
@@ -141,7 +142,7 @@ class GUI:
                 self.feedback_text.configure(state='disabled')
                 read_aloud_visible = False
             elif ai.get_has_completed() and not read_aloud_visible:
-                self.display_read_aloud(True)
+                self.display_read_aloud_and_follow_up(True)
                 read_aloud_visible = True
                 
     def follow_up(self):
@@ -283,11 +284,10 @@ class GUI:
 
         # Create and add a text area for ai feedback:
         self.feedback_text = Text(self.right_frame, bg='lightgray', state='disabled', font=self.feedback_font, width=10, height=10, wrap=WORD)
-        self.feedback_text.grid(row=1, column=0, ipadx=300, ipady=175)
+        self.feedback_text.grid(row=1, column=0, ipadx=300, ipady=170)
         
         # Create follow up button
         self.details_button = Button(self.right_frame, text='Follow Up', fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=self.follow_up, font=('Arial', 16), cursor='hand2')
-        self.details_button.grid(row=2, column=0, sticky='w', pady=5)
 
         # Create and add a button to reset image and feedback
         self.reset_button = Button(self.left_frame, text='Reset', fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=self.reset, font=('Arial', 16), cursor='hand2')
