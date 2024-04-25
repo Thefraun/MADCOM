@@ -107,6 +107,12 @@ class GUI:
             self.upload_image_button.configure(image=image)
             self.upload_image_button.image = image
             
+    # Waiting for Johnny
+    def upload_taken_picture(self):
+        """
+        Opens the camera and allows the user to take a photo, and then sends it to vision.py for processing
+        """
+        
     def send_prompt(self, path):
         """
         Sends the prompt to vision.py for processing and displays the read prompt in the GUI
@@ -252,20 +258,26 @@ class GUI:
         self.tab_control = Notebook(self.left_frame)
 
         # Create tabs to switch between uploaded image and code from the image
-        self.tab1 = Frame(self.tab_control)
-        self.tab2 = Frame(self.tab_control)
+        self.upload_tab = Frame(self.tab_control)
+        self.code_tab = Frame(self.tab_control)
+        self.picture_tab = Frame(self.tab_control)
 
         # Add tabs to the Notebook
-        self.tab_control.add(self.tab1, text='Image')
-        self.tab_control.add(self.tab2, text='Code')
+        self.tab_control.add(self.picture_tab, text='Take a Picture')
+        self.tab_control.add(self.upload_tab, text='Upload Image')
+        self.tab_control.add(self.code_tab, text='Code', state='disabled')
         self.tab_control.grid(row=1,column=0, pady=(10,5))
 
         # Create and add the upload image button to the Notebook
-        self.upload_image_button = Button(self.tab1, image=upload_image, command=self.upload_file, cursor='hand2')
+        self.upload_image_button = Button(self.upload_tab, image=upload_image, command=self.upload_file, cursor='hand2')
         self.upload_image_button.grid(column=0, row=0)  
 
         # Create and add a label that diplays upload image's code to the Notebook
-        self.display_code_label = Label(self.tab2, text ='This is where your code from the image will appear.', font=('Futura', 16), justify=LEFT)
+        self.display_code_label = Label(self.code_tab, text ='This is where your code from the image will appear.', font=('Futura', 16), justify=LEFT)
+        self.display_code_label.grid(column=0, row=0)
+        
+        # Create and add a label that displays the image taken from the camera
+        self.display_code_label = Label(self.picture_tab, text ='This is where your image will appear.', font=('Futura', 16))
         self.display_code_label.grid(column=0, row=0)
 
         # Create and add a label to explain text area
