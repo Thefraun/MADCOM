@@ -266,7 +266,7 @@ class GUI:
 
         # Create and add a label that diplays upload image's code to the Notebook
         self.display_code_label = Label(self.tab2, text ='This is where your code from the image will appear.', font=('Futura', 16), justify=LEFT)
-        self.display_code_label.grid(column = 0, row = 0)
+        self.display_code_label.grid(column=0, row=0)
 
         # Create and add a label to explain text area
         self.advice_label = Label(self.right_frame, text='Advice from The Sage:', font=('Futura', 20))
@@ -280,11 +280,11 @@ class GUI:
         self.read_aloud_button = Button(self.right_frame, image=read_aloud_image, command=self.read_aloud, cursor='hand2')
 
         # Create font for ai feedback text
-        self.feedback_font = Font(family='Helvetica',size=18)
+        self.feedback_font = Font(family='Helvetica', size=18)
 
         # Create and add a text area for ai feedback:
         self.feedback_text = Text(self.right_frame, bg='lightgray', state='disabled', font=self.feedback_font, width=10, height=10, wrap=WORD)
-        self.feedback_text.grid(row=1, column=0, ipadx=300, ipady=170)
+        self.feedback_text.grid(row=1, column=0, ipadx=300, ipady=170, pady=(0,10))
         
         # Create follow up button
         self.details_button = Button(self.right_frame, text='Follow Up', fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=self.follow_up, font=('Arial', 16), cursor='hand2')
