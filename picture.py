@@ -18,7 +18,7 @@ class Camera:
         # Create a GUI app 
         self.app = Toplevel()
         # Set the size of the app window
-       # self.app.geometry(f'{width}x{height}')
+        self.app.geometry(f'{width}x{height}')
 
         # Bind the app with Escape keyboard to 
         # quit app whenever pressed 
@@ -35,6 +35,11 @@ class Camera:
         camera_thread.start()
     
         # Create an infinite loop for displaying app on screen 
+        
+        camera_thread = threading.Thread(target=self.open_camera, name='camera_thread')
+        camera_thread.daemon = True
+        camera_thread.start()
+        
         self.app.mainloop() 
        
         
@@ -62,3 +67,19 @@ class Camera:
 
         # Repeat the same process after every 10 seconds 
         self.label_widget.after(10, self.open_camera) 
+        
+    def capture_screen(self):
+        # Capture the screen
+        #screenshot = ImageGrab.grab(bbox=(0, 0, 800, 600))
+        screenshot = ImageGrab.grab(bbox=(0, 0, 800, 600), xdisplay=":0")
+
+        # Convert the image to bytes
+        with BytesIO() as output:
+            screenshot.save(output, format='PNG')
+            image_bytes = output.getvalue()
+
+        # You can save or process the image bytes here
+        # For example, you can save it to a file:
+        screenshot.show()
+        #screenshot.save("screenshot.png")
+        screenshot.save("/home/johnny/pictures/screenshot_filename.png")
