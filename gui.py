@@ -5,7 +5,7 @@ from tkinter.ttk import Separator
 from tkinter.ttk import Style
 from tkinter import filedialog as fd
 from PIL import Image, ImageTk
-from vision import read_image
+from ai import *
 from ai import AI
 from picture import Camera
 import time
