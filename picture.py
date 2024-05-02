@@ -54,7 +54,7 @@ class Camera:
         opencv_image = cv2.flip(opencv_image, 1)
 
         # Capture the latest frame and transform to image 
-        captured_image = Image.fromarray(opencv_image) 
+        self.captured_image = Image.fromarray(self.opencv_image) 
 
         # Convert captured image to photoimage 
         photo_image = ImageTk.PhotoImage(image=captured_image)
@@ -63,23 +63,16 @@ class Camera:
         self.label_widget.photo_image = photo_image
 
         # Configure image in the label 
-        self.label_widget.configure(image=photo_image) 
+        self.label_widget.configure(image=self.photo_image) 
 
         # Repeat the same process after every 10 seconds 
         self.label_widget.after(10, self.open_camera) 
         
+    def get_path(self):
+        return self.path
+        
     def capture_screen(self):
-        # Capture the screen
-        #screenshot = ImageGrab.grab(bbox=(0, 0, 800, 600))
-        screenshot = ImageGrab.grab(bbox=(0, 0, 800, 600), xdisplay=":0")
-
-        # Convert the image to bytes
-        with BytesIO() as output:
-            screenshot.save(output, format='PNG')
-            image_bytes = output.getvalue()
-
-        # You can save or process the image bytes here
-        # For example, you can save it to a file:
-        screenshot.show()
-        #screenshot.save("screenshot.png")
-        screenshot.save("/home/johnny/pictures/screenshot_filename.png")
+        self.picture = self.captured_image
+        self.path = "/home/johnny/pictures/screenshot_filename.png"
+        self.picture.save(self.path)
+        return self.path
