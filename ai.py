@@ -27,6 +27,7 @@ class AI:
         Returns the last generated chunk from the queue
         """     
         return self.response_queue.get()
+
     
     def get_has_completed(self):
         return self.has_completed

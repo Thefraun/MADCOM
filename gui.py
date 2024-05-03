@@ -1,4 +1,3 @@
-
 from tkinter import *
 from tkinter.font import Font
 from tkinter.ttk import Notebook
@@ -8,6 +7,7 @@ from tkinter import filedialog as fd
 from PIL import Image, ImageTk
 from cloud_services import read_image, text_to_speech
 from ai import AI
+from picture import camera
 import time
 import threading
 
@@ -85,6 +85,7 @@ class GUI:
         """
         Asks the user to select a compatible file, and then opens the image and sends it to vision.py for processing
         """
+
         # Asks the user to open a file and stores the path of the file
         path = fd.askopenfilename(type=('*.jpg', '*.png', '*.jpeg'))
         
