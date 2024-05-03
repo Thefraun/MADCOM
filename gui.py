@@ -11,7 +11,7 @@ from ai import AI
 import time
 import threading
 
-#TODO: Add docstrings, documentation, pretty up?
+#TODO: Make the thing work, especially code label
 
 # Defines the GUI class, containing the GUI and all functions associated
 class GUI:
@@ -19,20 +19,21 @@ class GUI:
         """
         Toggle the program between light and dark mode
         """
-        if self.mode_button.cget('text') == 'Light Mode':
+        if self.mode_button.cget('text') == 'Dark Mode':
             # Sets all widgets to dark mode
             self.root.config(background=self.default_dark)
             self.top_frame.config(background=self.default_dark)
             self.space_label.config(background=self.default_dark, fg='#181A1B')
             self.heading_label.config(background=self.default_dark, fg='white')
-            self.mode_button.configure(text='Dark Mode')
+            self.mode_button.configure(text='Light Mode')
             self.mainframe.config(background=self.default_dark)
             self.left_frame.config(background=self.default_dark)
             self.style.theme_use('darkMode')
             self.right_frame.config(background=self.default_dark)
             self.advice_label.config(background=self.default_dark, fg='white')
-            self.reset_button.config(bg='#0acd6f', highlightbackground='#0acd6f', activebackground='#0acd6f', fg='black')
-            self.mode_button.config(bg='#0acd6f', highlightbackground='#0acd6f', activebackground='#0acd6f', fg='black')
+            self.reset_button.config(bg='#0acd6f', fg='black', highlightbackground='#0acd6f', activebackground='#0acd6f')
+            self.mode_button.config(bg='#0acd6f', fg='black', highlightbackground='#0acd6f', activebackground='#0acd6f')
+            self.edit_code_button.config(bg='#0acd6f', fg='black', highlightbackground='#0acd6f', activebackground='#0acd6f')
             logo = Image.open('Images/ScriptSageDark.png')
             logo = ImageTk.PhotoImage(logo)
             self.heading_label.config(image=logo)
@@ -43,7 +44,7 @@ class GUI:
             self.top_frame.config(background=self.default_light)
             self.space_label.config(background=self.default_light, fg='#EBEBEC')
             self.heading_label.config(background=self.default_light, fg='black')
-            self.mode_button.configure(text='Light Mode')
+            self.mode_button.configure(text='Dark Mode')
             self.mainframe.config(background=self.default_light)
             self.left_frame.config(background=self.default_light)
             self.style.theme_use('lightMode')
@@ -51,6 +52,7 @@ class GUI:
             self.advice_label.config(background=self.default_light, fg='black')
             self.reset_button.config(bg='#056939', highlightbackground='#056939', activebackground='#056939', fg='white')
             self.mode_button.config(bg='#056939', highlightbackground='#056939', activebackground='#056939', fg='white')
+            self.edit_code_button.config(bg='#056939', fg='white', highlightbackground='#056939', activebackground='#056939')
             logo = Image.open('Images/ScriptSage.png')
             logo = ImageTk.PhotoImage(logo)
             self.heading_label.config(image=logo)
@@ -76,10 +78,11 @@ class GUI:
         self.upload_image_button.image = image
         
         # Changes the display code label back to its original text
-        self.display_code_label.configure(text='This is where we show the code')
+        self.display_code_text.configure(state='normal')
+        self.display_code_text.delete('1.0', 'end')
         
         # Makes the read_aloud_button invisible
-        self.display_read_aloud_and_follow_up(False)
+        self.display_hidden_buttons(False)
             
     def upload_file(self):
         """
@@ -113,18 +116,27 @@ class GUI:
         Opens the camera and allows the user to take a photo, and then sends it to vision.py for processing
         """
         
-    def send_prompt(self, path):
+    def send_written_prompt(self):
+        """
+        Sends the prompt to vision.py for processing and displays the read prompt in the GUI
+        """
+        self.display_code_text.configure(state='disabled')
+        prompt = self.display_code_text.get('1.0', 'end')
+        ai.set_prompt(prompt)
+        
+    def send_uploaded_prompt(self, path):
         """
         Sends the prompt to vision.py for processing and displays the read prompt in the GUI
         """
         prompt = read_image(path)
         ai.set_prompt(prompt)
-        self.display_code_label.configure(text=prompt)
+        self.display_code_text.insert('start', prompt)
+        self.display_code_text.configure(state='disabled')
         
-    def display_read_aloud_and_follow_up(self, make_visible):
-        '''
+    def display_hidden_buttons(self, make_visible):
+        """
         Sets the visibility of the read aloud button
-        '''
+        """
         if make_visible:
             self.read_aloud_button.grid(row=0, column=0, sticky='e', pady=(0,5))
             self.details_button.grid(row=2, column=0, sticky='w', pady=5)
@@ -137,7 +149,7 @@ class GUI:
         text_to_speech_thread.daemon = True
         text_to_speech_thread.start()
         
-    def recieve_advice(self):
+    def display_advice(self):
         read_aloud_visible = False
         while True:
             if not ai.get_has_completed():
@@ -148,7 +160,7 @@ class GUI:
                 self.feedback_text.configure(state='disabled')
                 read_aloud_visible = False
             elif ai.get_has_completed() and not read_aloud_visible:
-                self.display_read_aloud_and_follow_up(True)
+                self.display_hidden_buttons(True)
                 read_aloud_visible = True
                 
     def follow_up(self):
@@ -226,7 +238,7 @@ class GUI:
         self.heading_label.grid(row=0, column=1)
 
         # Create and add a button to switch between light and dark mode
-        self.mode_button = Button(self.top_frame, text='Light Mode',fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=self.mode_toggle, font=('Arial', 16), cursor='hand2')
+        self.mode_button = Button(self.top_frame, text='Dark Mode',fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=self.mode_toggle, font=('Arial', 16), cursor='hand2')
         self.mode_button.grid(row=0, column=2, sticky='e', padx=(0,105), pady=(90,0))
 
         # Create and add a line separator
@@ -248,10 +260,10 @@ class GUI:
         self.right_frame = Frame(self.mainframe)
         self.right_frame.columnconfigure(0, weight=1)
         self.right_frame.grid(row=0, column=1,pady=(0,10))
-
+        
         # Create/load 'Upload Image' image:
         upload_image = Image.open('Images/uploadImage.png')
-        upload_image = upload_image.resize((550,600))
+        upload_image = upload_image.resize((550, 600))
         upload_image = ImageTk.PhotoImage(upload_image)
         
         # Create and add tabbed section holding upload image button and label to display code from image
@@ -265,7 +277,7 @@ class GUI:
         # Add tabs to the Notebook
         self.tab_control.add(self.picture_tab, text='Take a Picture')
         self.tab_control.add(self.upload_tab, text='Upload Image')
-        self.tab_control.add(self.code_tab, text='Code', state='disabled')
+        self.tab_control.add(self.code_tab, text='Code')
         self.tab_control.grid(row=1,column=0, pady=(10,5))
 
         # Create and add the upload image button to the Notebook
@@ -273,12 +285,12 @@ class GUI:
         self.upload_image_button.grid(column=0, row=0)  
 
         # Create and add a label that diplays upload image's code to the Notebook
-        self.display_code_label = Label(self.code_tab, text ='This is where your code from the image will appear.', font=('Futura', 16), justify=LEFT)
-        self.display_code_label.grid(column=0, row=0)
+        self.display_code_text = Text(self.code_tab, wrap=WORD, font=('Futura', 16), width=46, height=25)
+        self.edit_code_button = Button(self.code_tab, text='Edit Code', cursor='hand2', width=77, height=3, bg="#056939", fg=white, command=self.send_written_prompt)
+        self.edit_code_button.grid(column=0, row=0, sticky='s')
+        self.display_code_text.grid(column=0, row=0)
         
         # Create and add a label that displays the image taken from the camera
-        self.display_code_label = Label(self.picture_tab, text ='This is where your image will appear.', font=('Futura', 16))
-        self.display_code_label.grid(column=0, row=0)
 
         # Create and add a label to explain text area
         self.advice_label = Label(self.right_frame, text='Advice from The Sage:', font=('Futura', 20))
@@ -295,8 +307,8 @@ class GUI:
         self.feedback_font = Font(family='Helvetica', size=18)
 
         # Create and add a text area for ai feedback:
-        self.feedback_text = Text(self.right_frame, bg='lightgray', state='disabled', font=self.feedback_font, width=10, height=10, wrap=WORD)
-        self.feedback_text.grid(row=1, column=0, ipadx=300, ipady=170, pady=(0,10))
+        self.feedback_text = Text(self.right_frame, bg='lightgray', state='disabled', font=self.feedback_font, width=46, height=22, wrap=WORD)
+        self.feedback_text.grid(row=1, column=0)
         
         # Create follow up button
         self.details_button = Button(self.right_frame, text='Follow Up', fg='white', bg='#056939', highlightbackground='#056939', activebackground='#056939', command=self.follow_up, font=('Arial', 16), cursor='hand2')
@@ -310,7 +322,7 @@ class GUI:
         self.bottom_seperator.pack(fill='x', padx='30')
 
         # Begins checking the response queue every 200 milliseconds
-        recieve_advice_thread = threading.Thread(target=self.recieve_advice, name='recieve_advice_thread')
+        recieve_advice_thread = threading.Thread(target=self.display_advice, name='recieve_advice_thread')
         recieve_advice_thread.daemon = True
         recieve_advice_thread.start()
 
