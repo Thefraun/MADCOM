@@ -39,14 +39,17 @@ class AI:
         while True:
             if not self.prompt_queue.empty():
                 self.last_prompt = self.prompt_queue.get()
-                for chunk in ollama.generate (model = 'ScriptSage', prompt=self.last_prompt, stream=True):
+                for chunk in ollama.generate(model='ScriptSage', prompt=self.last_prompt, stream=True):
                     if not self.is_resetting:
                         self.response_queue.put(chunk['response'])
+                        if chunk['done']:
+                            self.has_completed = True
+                        else:
+                            self.has_completed = False
                     else:
                         self.response_queue.queue.clear()
                         self.is_resetting = False
                         break
-                self.has_completed = True
             if self.is_resetting:
                 self.has_completed = False
                 self.is_resetting = False
@@ -59,13 +62,16 @@ class AI:
         self.has_completed = False
         for chunk in ollama.chat(model = 'ScriptSage', messages=[{'role': 'user', 'content': self.last_prompt}, {'role': 'assistant', 'content': past_message}, {'role': 'user', 'content': 'Can you please give me more details about the errors?'}], stream=True):
             if not self.is_resetting:
-                print(chunk['message']['content'])
                 self.response_queue.put(chunk['message']['content'])
+                if chunk['done']:
+                    self.has_completed = True
+                else:
+                    self.has_completed = False
             else:
                 self.response_queue.queue.clear()
                 self.is_resetting = False
                 break
-        self.has_completed = True
+            
     def generate_response_no_ai(self):
         """
         Generates a response when the user inputs a new prompt, without the use of AI
@@ -97,3 +103,5 @@ class AI:
             ai_thread.start()
         else:
             no_ai_thread = threading.Thread(target=self.generate_response_no_ai, args=(), name='no_ai_thread')
+            no_ai_thread.daemon = True
+            no_ai_thread.start()
