@@ -124,7 +124,7 @@ class GUI:
             self.feedback_text.delete('1.0', 'end')
             self.feedback_text.configure(state='disabled')
             self.display_hidden_buttons(False)
-            
+        
         self.code_text.configure(state='disabled')
         prompt = self.code_text.get('1.0', 'end')
         ai.set_prompt(prompt)
@@ -299,10 +299,10 @@ class GUI:
         self.upload_image_button.grid(column=0, row=0)  
 
         # Create and add a text field and button to submit written code to the Notebook
-        self.code_text = Text(self.code_tab, wrap=WORD, font=('Futura', 16), width=46, height=25)
-        self.edit_code_button = Button(self.code_tab, text='Submit Code', cursor='hand2', width=77, height=3, bg="#056939", fg=white, command=self.send_written_prompt)
-        self.edit_code_button.grid(column=0, row=0, sticky='s')
-        self.code_text.grid(column=0, row=0)
+        self.code_text = Text(self.code_tab, wrap=WORD, font=('Futura', 16), width=45, height=25, padx=7, pady=2)
+        self.edit_code_button = Button(self.code_tab, text='Submit Code', cursor='hand2', width=78, height=3, bg="#056939", fg=white, command=self.send_written_prompt)
+        self.edit_code_button.grid(column=0, row=0, sticky='s', pady=(10,0))
+        self.code_text.grid(column=0, row=0, pady=(0, 0))
 
         # Create and add a label to explain text area
         self.advice_label = Label(self.right_frame, text='Advice from The Sage:', font=('Futura', 20))
@@ -319,7 +319,7 @@ class GUI:
         self.feedback_font = Font(family='Helvetica', size=18)
 
         # Create and add a text area for ai feedback:
-        self.feedback_text = Text(self.right_frame, bg='lightgray', state='disabled', font=self.feedback_font, width=46, height=22, wrap=WORD)
+        self.feedback_text = Text(self.right_frame, bg='lightgray', state='disabled', font=self.feedback_font, width=46, height=22, wrap=WORD, padx=7, pady=2)
         self.feedback_text.grid(row=1, column=0, pady=(0,15), sticky='ns')
         
         # Create follow up button
