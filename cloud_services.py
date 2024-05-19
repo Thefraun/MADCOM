@@ -3,11 +3,7 @@ from azure.cognitiveservices.vision.computervision.models import OperationStatus
 from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
 import azure.cognitiveservices.speech as speechsdk
 from msrest.authentication import CognitiveServicesCredentials
-
-from array import array
 import os
-from PIL import Image
-import sys
 import time
 
 def read_image(img_file_path):
@@ -25,7 +21,7 @@ def read_image(img_file_path):
     endpoint = os.environ["VISION_ENDPOINT"]
     computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
     
-    # GOpen the image and process the text
+    # Open the image and process the text
     read_image = open(img_file_path, "rb")
     read_response = computervision_client.read_in_stream(read_image,  raw=True)
 
@@ -51,15 +47,15 @@ def read_image(img_file_path):
     return text
 
 def text_to_speech(text):    
-    # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
+    # Set up the client
     speech_config = speechsdk.SpeechConfig(os.environ['SPEECH_KEY'], os.environ['SPEECH_REGION'])
     audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
 
-    # The neural multilingual voice can speak different languages based on the input text.
+    # Specify the voice for the AI to use
     speech_config.speech_synthesis_voice_name='en-US-BrianMultilingualNeural'
 
+    # Create the speech synthesizer
     speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
 
-    # Get text from the console and synthesize to the default speaker.
-
-    speech_synthesis_result = speech_synthesizer.speak_text_async(text).get()
+    # Read the text provided as a parameter and synthesize to the default speaker.
+    speech_synthesizer.speak_text_async(text).get()
